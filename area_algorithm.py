@@ -46,33 +46,34 @@ def create_grid():
 
 # Area division
 def area_div():
-    # x, y = V[0], HR[0]     # 0, 899
+    # x, y = V[0], HR[0]        # 0, 899
     # while True:
-    for x in V:                 # [0, 399, 499, 500, 599, 699, 799, 899]
-        for y in HR:            # [899, 799, 699, 499, 399, 398, 199, 0]
+    for x in V:                 # [0, 400, 500, 501, 600, 700, 800, 899]
+        for y in HR:            # [899, 800, 700, 500, 400, 399, 200, 0]
             new_img = cv2.imread('Room_binary.png', 0)
-            fixed_pos = new_img[x][y]
+            fixed_pos = new_img[y][x]
             flag = 0
+            print(x, y, fixed_pos)
             if fixed_pos == 255:
-                for iy in H:        # [0, 199, 398, 399, 499, 699, 799, 899]
-                    for ix in VR:   # [899, 799, 699, 599, 500, 499, 399, 0]
-                        var_pos = new_img[ix][iy]
-                        if var_pos == 255:
-                            start_row, start_col = iy, x
-                            end_row, end_col = y, ix
+                for iy in H:        # [0, 200, 399, 400, 500, 700, 800, 899]
+                    for ix in VR:   # [899, 800, 700, 600, 501, 500, 400, 0]
+                        var_pos = new_img[iy][ix]
+                        if var_pos == 255 and y > iy and x < ix:
+                            # start_row, start_col = iy, x
+                            # end_row, end_col = y, ix
                             bool = False
 
-                            for i in range(start_row, end_row+1):
-                                for j in range(start_col, end_col+1):
+                            for i in range(iy, y):
+                                for j in range(x, ix):
                                     if new_img[i][j] == 0:
                                         bool = True
-                            print('Loop: ', x, y, ix, iy, '\t', start_row, start_col, end_row, end_col)
+                            print('Loop: ', x, y, ix, iy, '\t', '({0}, {1}) ({2}, {3})'.format(iy, x, y, ix))
                             if bool == False:
-                                for i in range(start_row, end_row+1):
-                                    for j in range(start_col, end_col+1):
+                                for i in range(iy, y):
+                                    for j in range(x, ix):
                                         new_img[i][j] = 128
                                 cv2.imwrite('Room_binary.png', new_img)
-                                print('no:', x, y, ix, iy, '\t', start_row, start_col, end_row, end_col)
+                                print('no:', x, y, ix, iy, '\t', '({0}, {1}) ({2}, {3})'.format(iy, x, y, ix))
                                 flag = 1
                                 break
                     if flag == 1:
@@ -84,8 +85,8 @@ for i in corners.reshape(cx, 2):
     new_corner.append(tuple((i[0], i[1])))
 corners = new_corner
 for (c1, c2) in corners:
-    H.append(c2-1)
-    V.append(c1-1)
+    H.append(c2)
+    V.append(c1)
 H.append(0)
 H.append(899)
 V.append(0)
@@ -114,5 +115,9 @@ print(VR)
 area_div()
 
 # create_grid()
-
+#
+# for i in range(0, 400):
+#     for j in range(0, 900):
+#         binary[j][i] = 128
+# cv2.imwrite('Room_binary.png', binary)
 print(time.time() - start_time)
