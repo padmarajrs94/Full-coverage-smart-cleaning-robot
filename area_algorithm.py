@@ -7,7 +7,7 @@ start_time = time.time()
 # color image
 image = cv2.imread('Room.png')
 obstacles = []
-color = [(0, 0, 255), (0, 255, 0), (255, 0, 0), (128, 128, 128), (128, 0, 255), (255, 0, 128), (0, 128, 255), (0, 255, 255), (255, 128, 0)]
+color = [(255, 0, 0), (71, 99, 255), (0, 69, 255), (79, 79, 47), (237, 149, 100), (130, 0, 75), (147, 112, 219), (63, 133, 205), (250, 230, 230)]
 H, V, HR, VR = [], [], [], []
 
 # grayscale
@@ -17,6 +17,8 @@ height, width = gray_image.shape[:2]
 ret, binary = cv2.threshold(gray_image, 200, 255, cv2.THRESH_BINARY)   # To convert image from Grayscale to Binary format
 # cv2.imshow('ROOM THRESHOLD', thresh)
 cv2.imwrite('Room_binary.png', binary)
+cv2.imwrite('Room_color.png', binary)
+
 
 binary = np.float32(binary)
 corners = cv2.goodFeaturesToTrack(binary, 100, 0.01, 5)         # To find the corners of the image
@@ -36,21 +38,27 @@ cx, cy = corners.shape[0], corners.shape[1]
 
 def create_grid():
     new_img = cv2.imread('Room_binary.png', 0)
+    clr_img = cv2.imread('Room_color.png')
     px = 50
     for i in range(0, width, px):
         cv2.line(new_img, (i, 0), (i, height), 0)
+        cv2.line(clr_img, (i, 0), (i, height), 0)
     for i in range(0, height, px):
         cv2.line(new_img, (0, i), (width, i), 0)
+        cv2.line(clr_img, (0, i), (width, i), 0)
     cv2.imwrite('Room_binary.png', new_img)
+    cv2.imwrite('Room_color.png', clr_img)
 
 
 # Area division
 def area_div():
     # x, y = V[0], HR[0]        # 0, 899
     # while True:
+    clr = 0
     for x in V:                 # [0, 400, 500, 501, 600, 700, 800, 899]
         for y in HR:            # [899, 800, 700, 500, 400, 399, 200, 0]
             new_img = cv2.imread('Room_binary.png', 0)
+            clr_img = cv2.imread('Room_color.png')
             fixed_pos = new_img[y][x]
             flag = 0
             # print(y, x, fixed_pos)
@@ -74,11 +82,14 @@ def area_div():
                                 for i in range(y, iy-1, -1):
                                     for j in range(x, ix+1):
                                         new_img[i][j] = 128
+                                        clr_img[i][j] = color[clr]
                                 cv2.imwrite('Room_binary.png', new_img)
+                                cv2.imwrite('Room_color.png', clr_img)
                                 print('no:', y, x, iy, ix, '\t', '({0}, {1}) ({2}, {3})'.format(iy, x, y, ix))
                                 flag = 1
                                 break
                     if flag == 1:
+                        clr = clr + 1
                         break
 
 
